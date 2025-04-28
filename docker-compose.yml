@@ -1,0 +1,5 @@
+services:
+  ds-environment:
+    build: .
+    volumes:
+      - .:/app

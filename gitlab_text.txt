@@ -1,0 +1,68 @@
+{
+    "name": "python DevContainer", // お好みの名前
+    "build": {
+        "dockerfile": "../Dockerfile" // 相対パス表記
+    },
+    // ホストマシンのGit認証情報をコンテナ内で使用できるようにする
+    "mounts": [
+        "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    ],
+    // Gitを自動的にインストール
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest",
+            "ppa": false
+        }
+    },
+    // コンテナ内にGit認証情報を保存できるようにする
+    "containerEnv": {
+        "GIT_EDITOR": "code --wait"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [ // vscode extensions
+                "ms-python.python",
+                "njpwerner.autodocstring",
+                "ms-toolsai.jupyter",
+                "ms-azuretools.vscode-docker",
+                "GitHub.copilot",
+                "mhutchie.git-graph"
+            ],
+            // Git関連の追加拡張機能
+            "settings": {
+                "git.enableCommitSigning": false
+            }
+        }
+    }
+}
+
+オンプレGitLabに対応するための重要なポイント：
+SSL証明書の検証設定:
+
+多くの企業内GitLabは自己署名証明書を使用しているため、http.proxyStrictSSLをfalseに設定して、SSL証明書の厳密な検証をスキップできるようにしています。
+認証情報の管理:
+
+SSH認証: .sshディレクトリをマウントし、postCreateCommandでパーミッションを適切に設定しています。
+HTTPS認証: git config --global credential.helper storeコマンドで認証情報を保存できるようにしています。
+追加で必要な設定:
+
+オンプレGitLabが内部ネットワークでのみアクセス可能な場合は、Dockerfileに適切なネットワーク設定やプロキシ設定を追加する必要があるかもしれません。
+初回接続時の設定方法：
+コンテナ内で以下の手順を実行することで、オンプレGitLabへの接続を設定できます：
+
+SSH認証の場合:
+# GitLabサーバーの公開鍵を known_hosts に追加
+ssh-keyscan -H your-gitlab-server.com >> ~/.ssh/known_hosts
+
+# 既存のSSH鍵を使用するか、新しく作成
+# 新規作成の場合: ssh-keygen -t ed25519 -C "your-email@example.com"
+
+# 公開鍵をGitLabの設定ページに追加
+cat ~/.ssh/id_ed25519.pub
+# この内容をGitLabのユーザー設定のSSH鍵セクションに追加
+
+HTTPS認証の場合:
+# 初回のgit操作で認証情報を保存
+git clone https://your-gitlab-server.com/your-repo.git
+# ユーザー名とパスワードを入力すると、credential.helperによって保存される

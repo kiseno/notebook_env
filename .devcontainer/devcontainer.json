@@ -3,16 +3,36 @@
     "build": {
         "dockerfile": "../Dockerfile" // 相対パス表記
     },
+    // ホストマシンのGit認証情報をコンテナ内で使用できるようにする
+    "mounts": [
+        "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    ],
+    // Gitを自動的にインストール
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest",
+            "ppa": false
+        }
+    },
+    // コンテナ内にGit認証情報を保存できるようにする
+    "containerEnv": {
+        "GIT_EDITOR": "code --wait"
+    },
     "customizations": {
-		"vscode": {
-			"extensions": [ // vscode extensions
-				"ms-python.python",
-				"njpwerner.autodocstring",
-				"ms-toolsai.jupyter",
-				"ms-azuretools.vscode-docker",
-				"GitHub.copilot",
+        "vscode": {
+            "extensions": [ // vscode extensions
+                "ms-python.python",
+                "njpwerner.autodocstring",
+                "ms-toolsai.jupyter",
+                "ms-azuretools.vscode-docker",
+                "GitHub.copilot",
                 "mhutchie.git-graph"
-			]
-		}
-	}
+            ],
+            // Git関連の追加拡張機能
+            "settings": {
+                "git.enableCommitSigning": false
+            }
+        }
+    }
 }

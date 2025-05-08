@@ -1,3 +1,8 @@
+使い方  
+ .devcontainer, src, docker-compose, dockerfile, project.tomlをコピペ  
+ 
+
+
 あらかじめパッケージを入れる方法  
 docker-compose run --entrypoint "uv add --dev jupyterlab" ds-environment  
 
